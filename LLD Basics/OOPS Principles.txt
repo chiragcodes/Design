@@ -1,0 +1,131 @@
+Principles of OOPS
+
+Classes - Blue print of entities (real objects)
+Interface- Blue print of behavior
+
+Abstraction
+Hiding the complexity.
+Car is example of abstraction many parts working together to make common goal.
+ATM card slot for user's access and not the whole machine
+
+Encapsulation
+A capsule is container or wrapper of something.
+Encapsulation is containing the data and behaviour of the entity together.
+Used to prevent data and behaviour from unwanted access.
+Uses access modifiers - public, private, protected, default
+Never expose data members. Try to make variables and methods as private in every class.
+
+Inheritance
+Represent heirarchies. eg: org chart, animal classifications, etc.
+Code Reuse. Extend the parent class (extensible)
+
+Polymorphism
+Many forms.
+It allows us to pass an object of a subtype to a method which is expecting supertype.
+eg: If Animal class is inherited by classes (Mammal, Reptile, Other).
+    then Walk(Animal) will allow both Walk(animal super type) or Walk(reptile sub type)
+
+Compile Time P -> OverLoading() -> no of parameters different
+eg:
+makeSound() 	    { print "Dog make sound" }
+makeSound(String str) { print "Overloaded Dog make sound" +str }
+
+We know at compile time which of above will be called.
+makeSound() or makeSound("bark")
+
+Run Time P -> Overriding() -> types of parameters different
+eg:
+add(int a, int b)      { print (int) a+b }
+add(float a, float b)  { print (float) a+b }
+
+We know at rune time which of above will be called.
+add(1,2) or add(1.0,2.0)
+
+Inheritance, Limitation of Inheritance and use of Interface:
+
+We can extend only one class in Java(c++ allows) but can implement multiple interfaces.
+
+
+Parent Class
+- Don't include a behaviour in parent class unless it is generic property of that class.
+(If you expose any method in parent, child will be assumed to be following and using it.)
+
+eg:
+
+------
+Animal (parent class)
+------
+eat()
+walk()
+swim()
+...
+hunt()
+.
+.
+-----> Herbivor (child class)
+.
+.
+-----> Carnivor (child class)
+
+Now, Herbivor cannot include hunt(). How to solve this problem.
+
+i. Leave the implementation empty
+
+   Herbivor () {
+	hunt() { // do nothing };
+   }
+
+ii. Break into nested inheritance
+
+Animal
+  -> Non-Hunting -> Herbivor
+  -> Hunting -> Carnivor
+           -> Omnivor
+
+
+
+
+Problem to above ...
+
+Lets say we introduce new features like run(), eat(), etc. along with hunt()
+Then there will be multiple combinations and it will be difficult to manage so many classes classifications.
+
+Solution: Interfaces. 
+Interface- Blue print of behavior
+
+Consider below Interfaces.
+They tell that anyone who implements me can run(), eat() and hunt() respectively.
+
+Runnable		Eatable		Huntable
+--------		--------		--------
+run()			eat()			hunt()
+--------		--------		--------
+
+Sol:
+
+Animal
+  -> Mammal -> Dog (Implements Runnable, Eatable, Huntable)
+  -> Reptile -> Rat (Implements ...)
+  -> Other -> Cow (Implements Runnable, Eatable)
+
+eg:
+Eatable a = new Dog();
+Eatable a = new Cow();
+Huntable a = new Dog();
+
+
+Also,
+Dog a = new Animal();  compile error
+Animal a = new Dog();  correct
+
+Reason - Dog is an animal but the current Animal may or may not be a Dog.
+
+Also,
+Dog d = new Dog();
+GermanShepherd gs = new GermanShepherd();
+List<Animal> animals = List.of(d,gs);   correct
+
+
+
+
+

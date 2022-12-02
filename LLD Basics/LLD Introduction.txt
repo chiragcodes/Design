@@ -1,0 +1,25 @@
+Introduction
+
+LLD -> Low Level Design
+
+
+Deals with details of implementation software system. 
+Use - To ensure writing good code (not fast code).
+
+Good Software:
+- Readable/Understandable - Testable - Maintainable - Extensible
+- Easy to reuse {Tight Coupling : non-modular code, Hardcoded vars : char[256] alphabets}
+
+- Understand the Requirements
+- Understand what are problems we are going to solve.
+
+Design Priciples - Rules or fundamentals to be followed.
+Design Patterns - Common or established solutions to common software design problems.
+Schema Design and UML - how to design database.
+
+Programming Languages and design tools - Java, Draw.io, IntelliJ
+
+Then, Approach Design problems :)
+
+
+

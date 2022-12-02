@@ -1,0 +1,30 @@
+Introduction
+
+Types of Programming Language
+
+Procedural Programming: 
+Functions were earlier known as procedure.
+Multiple procedures -> Execution starts from 1 procedure -> that procedure keeps on calling other procedures.
+In procedural programming, data by itself can't do anything. Everything done to data is by procedures.
+
+Sequential Programming:
+Code executions happens line by line.
+
+eg: C is procedural + sequential
+
+Object Oriented Programming:
+Object knows all its attributes and can handle the data.
+
+eg: Animals - Dog, Cat, Lion, Snake
+
+PP - In PP, procedure defines how data should behave using if conditions.
+OOP - In OOP, data handles how to behave
+
+Make Sound(animal) {
+   if (animal == "cat") { print "meow" }
+   if (animal == "dog") { print "bark" }
+   if (animal == "snake") { print "shh" }
+   ...
+}
+Here, there will be multiple procedures similar to Sound like Jump(). 
+If any condition missed like if any animal cannot jump eg: snake. then can lead to problem.

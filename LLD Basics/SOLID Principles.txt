@@ -1,0 +1,271 @@
+Solid Design Principles
+
+Design Principles : Basic rules for a good s/w
+
+S - Single Responsibility Principle
+O - Open/Close Principle
+L - Liskov's Substitution Principle
+I - Interface Segregration Principle
+D - Dependency Inversion Principle
+
+
+
+Single Responsibility Principle
+
+- Every code unit should have a single well defined ownership.
+  Code unit can be a class, method, package, project, service, etc.
+
+eg:
+
+class Bird {
+
+  type;
+  beak;
+  height;
+
+  void fly() { if type="crow" -> ..., if type="parrot" -> ..., if type="pegion" -> ... }
+
+}
+
+class Bird contains:
+- Features of Bird
+- Logic of how different bird shouldy fly => Violation of Single Responsibility Principle
+
+Why Violation ->
+
+The Bird class is also having ownership of how each type of bird will fly.
+Let's say if tomorrow if some other bird has to fly in different way, will need to make changes in Bird class,
+because bird class is owning this behaviour.
+Let's say if bird gets a new behaviour or new feature, will need to add that in Bird class.
+So, above 2 responsibilities the Bird class has.
+
+Ideally, Bird class should have only 1 responsibility of features or bird.
+how, different birds can fly should not be feature of bird class.
+
+eg: saveUserAndLog(); - this is also SRP violation
+because in future someone only wants to save, then have to create new one (there modularization helps)
+
+How to identify violation of SRP.
+
+- Multiple If/Else, switch case, etc (any method containing multiple conditions)
+- Monster method - Does a lot more than what name says.
+  eg: fly() { -> connect to DB -> Some logging -> writing a query }
+- Utility Packages/Classes - Whatever we have utils/commons/helpers we put here like junkyard
+  eg: Utils have : connectDB(), DateUtils(), JSONParser(), StringUtils(), ThirdPartyUtils()
+      Ideally there should be separate packages. It is better to divide util classes in separate util classes.
+      Advantage: In future, some other project also wants to use any specific JSONParser() utils. 
+                 we can make library of it or extract it out and provide it. (we can make library by JAR file)
+
+Importance of SRP
+- Code Reusability
+- Packages/Classes will become bloated - understanding become difficult, should understand from method name.
+- Testing - if new bird added in if/else condition, need to add test case for that as well.
+
+Using SRP - Have more classes/packages/files.
+Following it 100% is not practical, don't just create many files. there should be a tradeoff
+file should not contain only 1 method nor 500 methods, it should be intuitive.
+
+
+
+
+Open/Close Principle
+
+- Every code unit should be open for extension, but closed for modification.
+
+eg: when adding new feature, we can extend it by adding new file, but it should modify existing code.
+void fly() { if type="crow" -> ..., if type="parrot" -> ..., if type="pegion" -> ... }
+
+if have to add new bird 'sparrow', will have to add new condition/testcases : if type="sparrow" -> ...
+this is violation of OCP
+
+Solution:
+
+Before -
+
+class Bird {
+
+  type;
+  beak;
+  height;
+
+  void fly() { if type="crow" -> ..., if type="parrot" -> ..., if type="pegion" -> ... }
+
+}
+
+After -
+
+Abstract class Bird {
+
+  type;
+  beak;
+  height;
+
+  abstract void fly();
+
+}
+
+class Crow implements Bird { fly() { ... } }
+class Parrot implements Bird { fly() { ... } }
+class Pegion implements Bird { fly() { ... } }
+...
+class Sparrow implements Bird { fly() { ... } }
+
+
+Problem in above Solution - Code Duplication (as shared behaviour s1, s2 between birds)
+eg:
+
+Pegion	Sparrow	Crow		Parrot	Hen
+
+fly ()	fly ()	fly ()	fly ()	fly ()
+{ s1 }	{ s2 }	{ s1 }	{ s1 }	{ s2 }
+
+
+Shared Behaviour - Behaviour means interface blueprint - Use Interfaces
+
+
+
+
+Liskov's Substitution Principle
+
+
+- Any parent class should be as is replaceable by an instance of its child class without any changes needed.
+- To avoid surprises for client.
+
+eg:
+Animal a = new Animal(); -> this parent class should be replaced by any of its child like
+Animal b = new Parrot();
+Animal c = new ButterFly();
+Animal d  = new Human();
+
+let's say if Animal has method fly(); but humans cannot fly so it would have to throw exception
+if someone call d.fly(); { human.fly() }
+
+
+
+
+Interface Segregration Principle
+
+- Don't have thick and generalized interfaces.Make interfaces specific.
+- Have interfaces with as less methods as possible.
+
+eg:
+
+Instead of having only 1 interface for four different behaviour, have different interfaces
+
+interface Animal () {
+
+ fly()    {};
+ run()    {};
+ dance() {};
+ walk()  {};
+
+}
+
+Better to have four interfaces like
+
+class Animal();
+
+interface flyable { fly(); } 
+interface runnable { run (); } 
+interface danceable { dance(); } 
+interface walkable { walk(); } 
+
+If someone has to implement interfaces, they will do that.
+
+
+
+Dependency Inversion Principle
+
+- No 2 classes should be directly dependent on each other.
+- If yes, then they should be connect via an interface.
+
+This principle is basic for almost multiple design framework eg: sprintboot, phonepe crash and back.
+
+
+eg:
+
+Interface Vendor
+DocStat class extends Vendor
+LetsDoc class extends Vendor
+
+DocStatServiceImpl implements DocStat class
+LetsDocServiceImpl implements LetsDoc class
+VendorAssigment class will call either DocStatServiceImpl or LetsDocServiceImpl
+
+eg:
+
+FlipKart CodeBase:
+
+class Payment {
+
+  RazorPay api = new RazorPayAPI();
+  void pay  {
+     api.something();
+     ...
+  }
+
+}
+
+Here, Payment class of Flipkart is directly dependent on RazorPayApi and calling its methods.
+Ideally it should not be there.
+
+let's say flipkart decides to change to PayU as RazorPay increased its cost.
+we will have to do changes.
+
+
+class Payment {
+
+  PayU val = new PayU();
+  void pay  {
+     val.someOtherthing();
+     ...
+  }
+
+}
+
+This can lead to lot of bugs, as code changed so can have bugs and testing needed much.
+
+Now, this principle says that Payment class will not directly dependent on RazorPay
+But Payment class will depend on PaymentAPI Interface.\
+
+Today, RazorPayAPI implements it. tomorrow PayU implements it. then BharatPay can implement it.
+So, the only change needed will be to change the instance of interface
+
+class Payment {
+
+  //PaymentApiInterface api = new RazorPayAPI();
+  PaymentApiInterface val = new PayU();
+  void pay  {
+     api.something();
+     ...
+  }
+
+}
+
+
+Dependency Injection: We do not have to assign real objects, it should be done by constructors, etc.
+
+eg:
+
+Below is real objects assignment to Interface objects. either RazorPay, PayU, or something will be assigned.
+
+//PaymentApiInterface api = new RazorPayAPI();
+  PaymentApiInterface api = new PayU();
+
+Instead can do like this:
+
+
+PaymentApiInterface api;
+Payment (PaymentApiInterface paymentApi) {
+  this.api = paymentApi;
+}
+
+Now, the real objects will be set by constructor passed by clients.
+So, they can decide which payment service they want to use based on client.
+
+eg:
+
+Flipkart
+- Payment payment  = new Payment(new RazorPayAPI());
+Myntra
+- Payment payment  = new Payment(new PayUPaymentApi());

@@ -1,0 +1,158 @@
+Behavioural Design Patterns
+- Observer
+- Strategy
+
+
+Observer
+- Object of interest
+- Get notified when something changes
+- On change, take an action.
+
+eg: I want phone but availability is less. so I have to go daily to shop to check if phone came or not.
+Other thing is shopkeeper can mail all of them whenever phone comes. But that is also wasteful.
+So, just go to shop and ask to notify if phone become available. so, the shop will notify only interested ones.
+
+eg:
+class BitcoinTracker {
+
+ double price;
+ set Price(price) {
+   sendEmail();
+   tweet();
+   buy();
+ }
+}
+
+Above violates SRP, many responsibilities in this class. cannot use.
+
+- Use concept of Polling (question is when to poll)
+- But we dont know whether to poll every 1 day or every 10 secs. so much resource intensive. cannot use.
+
+eg:
+class BitCoinTracker { ... }    class Price() { ... }
+poll class price to check if prevPrice != currPrice
+
+- Use separate classes for every action.
+
+eg:
+class Email { sendEmail(); }	class Tweet { tweet(); }  class Purchase { buy(); }
+
+class BitcoinTracker {
+
+ double price;
+ set Price(price) {
+   e.sendEmail();
+   t.tweet();
+   p.buy();
+ }
+}
+
+But it violates Dependency Injection (one concrete class dependent on another concrete class)
+so, have to add interface.
+
+interface Listener/Observer {
+   void takeAction();
+}
+
+class Email implements Observer { sendEmail(); }
+class Tweet implements Observer { tweet(); }
+class Purchase implements Observer { buy(); }
+
+class BitcoinTracker {
+
+ List<Observer> observer;
+ double price;
+ set Price(price) {
+   observer.forEach { o.takeAction(); }
+ }
+}
+
+
+Now, lets say instead of Email, in future we need to whatsapp.
+then,
+
+Actions -> Email - Tweet - Purchase   should change to   Whatsapp - Tweet - Purchase.
+
+In this case, add a new class implementing Observer for Whatsapp.
+De-register email and register whatsapp.
+
+  class Whatsapp implements Observer { sendWhatsapp(); }
+  Deregister E and Register W. so that  E T P -> W T P
+
+
+
+
+Strategy Design Pattern
+- We do not wanted multiple level of inheritance for multiple behaviours of class
+- So, we extract the behaviour to an interface and we inject that behaviour as an interface dynamically to the class.
+
+Cat -> hunt, make noise, run
+
+- create class Cat and add all of these methods
+
+class Cat {
+  run() { ... }
+  hunt() { ... }
+  noise() { ... }
+}
+
+Now, let's say we have to implement for multiple types of cats
+Cats -> Domestic, Lion, Tiger, BigCat
+
+- create interface Cat and make classes for types of cats implementing cat interface and implementing methods.
+
+interface Cat { run(); hunt(); noise(); }
+
+class Domestic implements Cat {
+  void run() { ... }    void hunt() { ... }   ...
+}
+class BigCat implements Cat {
+  void run() { ... }    void hunt() { ... }   ...
+}
+...
+
+
+Now, they might have code duplication for hunt() methods implemented in classes.
+eg: Domestic and BigCat might hunt by stalking and Lion and Tiger by jumping
+
+-  We can try by defining unique heirarchies. but its not good idea to have multiple layer inheritance.
+also, the classification will become complex considering other methods like run, noise along with hunt.
+Always try to reduce layers of inheritance. at most, try to have only a parent class and a sub class.
+
+- Instead of inheritance, will do composition.
+( instead of isA relationship, have a hasA relationship)
+
+That means, instead of having multiple subclasses, have one sub class and we inject different behaviours into it.
+
+How to inject different behaviours?
+
+Have a new interface -> HuntingStrategy
+
+eg:
+
+interface HuntingStrategy {
+   void hunt();
+}
+
+class Stalking implements HuntingStrategy {
+   void hunt() { ... };
+}
+class Jumping implements HuntingStrategy {
+   void hunt() { ... };
+}
+
+
+class Cat {
+
+   HuntingStrategy hs;
+
+   Cat (HuntingStrategy hs) {   // how to inject hunting strategy into the Cat class - Using constructor.
+      this.hs = hs;
+   }
+
+   hunt() {
+       hs.hunt();
+   }
+
+}
+

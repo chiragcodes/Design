@@ -1,0 +1,321 @@
+Creational Design Patterns 
+- All about object creation.
+
+Deals with - how/when/how_many to create objects
+
+Design Patterns
+- Singleton
+- Builder
+- Prototype
+- Factory & Abstract Factory
+
+
+
+
+Singleton
+
+
+
+- One Instance
+- We will have only one instance of a class, and other class will use this instance.
+
+What?
+
+eg: In spring, all of the beans/instances are singleton. DB connections. Configurations.
+
+Application Server connect to DB steps:
+Open connection. Open TCP. Transfer. Close Connection. Close socket.
+If application server wants to talk to a database everytime, it has to go through these steps,
+and these will be expensive operations and add an overhead.
+
+So, what DB servers actually do is - they come up with connection pool.
+So, to restrict this, we need to have only 1 connection pool.
+
+When?
+
+- Single Shared Resource
+When we have Single Shared Resource, if we create multiple instance of it, it would cause us
+memory issues and resource intensiveness.
+- Stateless
+Let's say a class do not have states i.e. it has only methods but no attributes.
+then there is no sense to have multiple instance of this bean as it does not maintain any state.
+so, it will be good to have single instance of this type of class. eg: Logger class
+
+
+How?
+
+class DatabaseCP {  DatabaseCP() {}  }
+DatabaseCP d = new DatabaseCP();    // here, we can create multiple instances of DatabaseCP class.
+
+
+Now, if we make constructor for this class private, I cannot create any instance now.
+This is called Constructor Hiding.
+
+class DatabaseCP { private DatabaseCP() {}  }
+
+I still need one instance. I can use static method.
+This is called static initialization.
+
+class DatabaseCP { 
+  private static instance = null;
+
+  private DatabaseCP() {}  
+  static getInstance() { 
+     if (instance = null) -> instance = new DatabaseCP(); else -> return instance 
+  }
+}
+
+Cons 
+
+SRP Violation
+- It violates Single Responsibility Principle. because 1st creates instance and 2nd gives access to this.
+Thread safety is not guranateed
+- What is 2 threads call this at same time, so both assume it null and creates instances. so total 2 created.
+Performance issue with threadsafe approach
+
+Resolution
+
+Make the getInstance() method synchronized - it only allows single thread to execute this command at a time (lock)
+The issue is everytime thread have a lock, it will impact performance.
+Also, it is not better to have synchronized at method, instead have a synchronized block itself.
+
+Under the getInstance() method, have this synchronized block.
+
+public static CP getInstance() {
+   synchronized(CP.class) {
+      if (instance == null) { instance = new CP()}
+   }
+   return instance;
+}
+
+
+OR instead of doing all these, we can do Eager Initialization - slow startup
+
+i.e. private static CP instance = new CP(); // at class level attribute
+
+But here the issue is that, it will be initialized at startup. not when any constructor needs and calls it.
+so even if there is no use to create an instance till 3 days, it will be created and remain as is.
+
+Also, imagine if spring does this. Then, all your beans are initialized and your startup time will just increase.
+
+
+OR can use double checked locking.
+
+public static CP getInstance() {
+   if (instance == null) {
+       synchronized(CP.class) {
+           if (instance == null) { instance = new CP()}
+   	 }
+   }
+   return instance;
+}
+
+Now, instance == null will be only once at start so synchornized will be called only once, so issues with synchronized reduced to 1.
+Also, advantages of synchronized remain as it is.
+
+Other approaches includes Enum implementation, inner static class, etc.
+
+
+
+
+
+Builder
+
+
+- It is an easy way to create complex objects.
+- When we face huge class (due to bad design, try to break down using composition/inheritance)
+
+eg:
+class Student {
+  String name;
+  int age;
+  String email;
+   ...
+}
+
+how can we create instance of this class and populate it.
+-  s = new Student();
+   s.setName();  s.setAge();  s.setEmail(); .....
+
+problems with above instance creation - painful to write code, tough to maintain, validation, immutability.
+
+validations -
+after setting values of instance. it got modified at a later step.
+suppose, we have some validations on some attribute. so, every time it is initialized or modified,
+we have to call validate custom methods to validate the new data over and over again.
+We can have validation at setter() method but there can be multiple fields combination validation also.
+eg: first_name + last_name length should be less than 25
+
+immutability - 
+suppose, a class has a variable x = 5. it got passed through multiple classes and reaches at end class.
+We want its value x = 5. But, somehow there is a bug and in between classes it was set x = 0;
+so, we want some objects that can never be changed. these are immutable objects.
+
+Requirement:
+We want an approach for class which can - handle no of fields, validation, immutable
+
+If we use constructors() - many values to pass, ordering issue, don't handle mandatory vs optional fields.
+Pass HashMAp<K,V> in constructor(); - here V type will be Object, it can lead to type casting issues.
+
+So, we can use Builder Pattern:
+
+The problem with HashMap was type safety as <K,V> V was always object type and can provide issue in casting.
+If we are able to do handle type safety in hashmap kind of thing eg: map - <int,int> <int,str> <int,char>
+- we can use JSON. 
+
+In Java, JSON is like a class. so I can use a class for this.
+
+eg:
+
+class Student() {
+
+  x;
+  y;
+  z;
+
+  class StudentBuilder() { x.. y.. z.. }  // inner class having attributes or main class again.
+  build() { ... }  // I am done with builder creating, now it will build this created value to actual class.
+
+}
+
+steps:
+- Get a new builder instance
+- Add values to Builder
+- Trigger Build
+- Validate -> within builder method, have validate method to validate data. if correct, call build() method.
+
+It seems that it takes twice memory. but it is transient memory, so once builder is created, it is garbage collected.
+
+
+
+So, Builder will be built like this:
+
+class Student() 
+{
+
+ // getter setter methods.
+
+ public String getName() { return this.name; }
+ public String getAge() { return this.age; }
+ public String getPhone() { return this.phone; }
+
+}
+
+
+{
+
+ Student.StudentBuilder builder = new Student.StudentBuilder();
+
+ builder.setName("Chirag");
+ builder.setAge(25);
+ builder.setPhone(9998887776);
+
+ Student student = builder.build();
+ return student;
+
+}
+
+
+// Here setting bulder.set() in every line does not look good better and much cleaner.
+// We can change getter methods to return Class object reference instead of specific datatype and do below:
+
+
+class Student() 
+{
+
+ // updated getter setter methods.
+
+ public StudentBuilder getName() { return this; }
+ public StudentBuilder getAge() { return this; }
+ public StudentBuilder getPhone() { return this; }
+
+}
+
+
+{
+
+ Student.StudentBuilder builder = new Student.StudentBuilder();
+
+ builder.setName("Chirag");
+        .setAge(25);
+        .setPhone(9998887776);
+
+ Student student = builder.build();
+ return student;
+
+}
+
+
+To handle validation:
+
+private boolean validate() { 
+ if (name == null || age == null ...) { return false; }
+ return true;
+}
+
+In build method, call this validation:
+
+boolean isValid = validate();
+if (!isValid) { throw new IllegalArgument("Error"); }
+
+// Check how can handle new field addition without adding it everywhere.
+
+If we do not want to write or generate the getter/setter/builder explicity, use lombok. 
+
+Lombok:
+
+- It is a code generator library. provides various annotations like below.
+
+import lombok.*;
+import lombok.Setter;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@Builder
+
+
+
+
+
+
+
+Prototype
+
+- This pattern is Generating new muitiple copies/objects when creating new one is hard.
+Prototype Registry - A place where we can store original prototypes.
+eg: Tree implements Clonable
+
+steps:
+- create type 1 prototype
+- when have to copy, check registry and use value to create copy.
+
+Registry:
+hashmap : { A : 1 , B : 2}
+
+if I have to create more types of A, I will check registry and using 1 (object instance) and create more.
+
+
+Factory & Abstract Factory
+- Use where there is tight coupling as method is concrete method.
+- mostly used in frontend library
+- parameter is core required for factory
+
+eg: 
+
+Interface Transport
+ method - createTransport();  // Factory Method
+
+
+- class Land implements Transport
+- class Water implements Transport
+- class Air implements Transport
+
+TMS.createTransport(type parameter);  // return type will be Transport interface.
+
+
+Factory method
+- Have multiple subclasses
+- Have to decide which subclass to instantiate depending on a parameter
+- return the interface
+

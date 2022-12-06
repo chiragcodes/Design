@@ -1,0 +1,193 @@
+Structural Design Patterns
+Focus on structure of the class
+
+
+- Adapter
+- Decorator
+
+
+
+
+Adapter
+- Multiple format or dependencies.
+- Want single behaviour, so I write an adapter for different behaviours
+
+eg: lets say we move from india to london for onsite. We want to connect our laptop to charger.
+Now, india have different round pin and london will have different square pin.
+So, we use an adapter.
+eg: Lets say I call two apis. one return result in json and one in xml.
+But I want any one format, so I stick to one and convert others.
+
+eg:
+
+
+Book My Show
+
+For payment gateways
+
+Razorpay (class)
+
+  - genLink     - genPay     - genStatus 
+
+CashFree (class)
+
+  - makeLink    - makePay    - makeStatus
+
+
+Now, the actual code for the method will be present at razor pay and cashfree only.
+But I want to implement only one implementation in my code base.
+ - I will have a common layer (interface)
+
+=>
+
+Book My Show
+
+I want to integrate above with razorpay and cashfree.
+
+Steps:
+ - Create interface for adapter
+ - Create adapter for each dependency and implement interface
+
+Solution:
+
+interface PaymentProvider (Interface - created a common adapter interface)
+
+ - link()      - pay()      - status()
+
+
+class RazorPayAdapter implements PaymentProvider 
+{
+
+  private RazorPayApi razorPayApi;  // reference to actual vendor api
+
+  @Override
+  public void link() {
+     return razorPayApi.genLink();
+  }
+
+  @Override
+  public void pay() {
+     return razorPayApi.genPay();
+  }
+
+}
+
+
+class CashFreeAdapter implements PaymentProvider 
+{
+
+  private CashFreeApi cashFreeApi;  // reference to actual vendor api
+
+  @Override
+  public void link() {
+     return cashFreeApi.makeLink();
+  }
+
+  @Override
+  public void pay() {
+     return cashFreeApi.makePay();
+  }
+
+}
+
+
+
+What if there are different parameters, return types, behaviours, etc ?
+
+Return type different
+- The principle will remain the same, the return type for common interface we will keep like it handles both of the scenarios.
+- In respective impls, we will convert/adapt the razorpay or cashfree reponse to our required response and receive it.
+
+Parameters different
+- Lets say our external apis are expecting different no of parameters. 
+
+  eg : String val = payRazorPay (String name, int amount);
+       String val = payCashFree (int amount)
+
+  We can adapt to this by: - The idea through the adapter pattern is that whatever varies, you make them common.
+
+- So, it becomes
+
+  From : public String pay (int amount)
+  To :   public String pay (PaymentRequest paymentRequest)
+
+  	   PaymentRequest {
+     		String name;
+     		int amount;
+  	   }	
+
+  From : 
+
+  @Override
+  public String pay (String name, int amount) {
+     return razorPayApi.genPay (name, amount);
+  }
+
+  @Override
+  public String pay (int amount) {
+     return cashFreeApi.makePay (amount);
+  }
+
+  To :
+  
+  @Override
+  public String pay (PaymentRequest paymentRequest) {
+     return razorPayApi.genPay (paymentRequest.getName(), paymentRequest.getAmount());
+  }
+
+  @Override
+  public String pay (PaymentRequest paymentRequest) {
+     return cashFreeApi.makePay (paymentRequest.getAmount());
+  }
+
+
+
+
+
+Decorator or Wrapper Design Pattern
+
+- Extend new behaviour or add layers to base entity.
+eg: Lets say you have pizza crust. you add ketup to it. then added cheese, then capsisum, then panner, etc.
+but base entity i.e. pizza crust was always a pizza.
+
+Steps:
+- Base entity
+- Adding new behaviour (decorating it)
+- We still have original entity
+
+whenever new layer added in pizza, only price changes.
+
+class Pizza {
+
+  Price p;
+  getPrice() { return p; } 
+
+}
+
+class Sauce extends Pizza {    // sauce cannot exist without pizza
+
+  Pizza p;
+
+  Sauce (Pizza p) {
+    this.p = p;
+  }
+  
+  getPrice() { p.getPrice() + 10; }   // base price + ketchup
+ 
+}
+
+
+class Cheese extends Pizza {    // cheese cannot exist without pizza
+
+  Pizza p;
+
+  Cheese (Pizza p) {
+    this.p = p;
+  }
+  
+  getPrice() { p.getPrice() + 20; }   // ( curr entity -> base price + ketchup) + cheese
+ 
+}
+
+
+

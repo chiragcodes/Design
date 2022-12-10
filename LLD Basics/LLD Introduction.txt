@@ -7,7 +7,7 @@ Deals with details of implementation software system.
 Use - To ensure writing good code (not fast code).
 
 Good Software:
-- Readable/Understandable - Testable - Maintainable - Extensible
+- Should be Readable/Understandable - Testable - Maintainable - Extensible
 - Easy to reuse {Tight Coupling : non-modular code, Hardcoded vars : char[256] alphabets}
 
 - Understand the Requirements

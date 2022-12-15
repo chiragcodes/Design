@@ -1,4 +1,4 @@
-Principles of OOPS
+Principles of OOPS:
 
 Classes - Blue print of entities (real objects)
 Interface- Blue print of behavior

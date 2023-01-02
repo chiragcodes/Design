@@ -4,7 +4,7 @@ LLD -> Low Level Design
 
 
 Deals with details of implementation software system. 
-Use - To ensure writing good code (not fast code).
+Use - To ensure writing good code (not fast code)
 
 Good Software:
 - Should be Readable/Understandable - Testable - Maintainable - Extensible

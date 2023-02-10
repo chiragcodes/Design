@@ -1,6 +1,6 @@
 Introduction
 
-LLD -> Low Level Design
+LLD => Low Level Design
 
 
 Deals with details of implementation software system. 
